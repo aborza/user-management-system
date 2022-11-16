@@ -1,0 +1,29 @@
+security:
+  providers:
+    users:
+      entity:
+        class: 'App\Entity\User'
+        property: 'email'
+  password_hashers:
+    App\Entity\User: 'auto'
+  enable_authenticator_manager: true
+  firewalls:
+    external_api_login:
+      pattern: ^/external-api/login
+      stateless: true
+      json_login:
+        check_path: /external-api/login_check
+        success_handler: lexik_jwt_authentication.handler.authentication_success
+        failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+    external_api:
+      pattern: ^/external-api
+      stateless: true
+      jwt: ~
+
+  access_control:
+    - { path: ^/external-api/login, roles: PUBLIC_ACCESS }
+    - { path: ^/external-api,       roles: [ROLE_API] }
+  role_hierarchy:
+    ROLE_API: ROLE_USER
+    ROLE_ADMIN_API: [ROLE_API]
