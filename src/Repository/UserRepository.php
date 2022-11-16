@@ -58,9 +58,34 @@ class UserRepository extends ServiceEntityRepository
         return $this->getQueryBuilderWithFilters($filter)->select('count(u.id)')->getQuery()->getSingleScalarResult();
     }
 
+    public function update(): void
+    {
+        $this->getEntityManager()->flush();
+    }
+
+    /**
+     * @throws NotFoundHttpException
+     */
+    public function findOrFail(int $id): User
+    {
+        $user = $this->find($id);
+
+        if ($user === null) {
+            throw new NotFoundHttpException("User with id {$id} was not found");
+        }
+
+        return $user;
+    }
+
     private function getQueryBuilderWithFilters(Filter $filter): QueryBuilder
     {
-        return $this->addFilters($this->createQueryBuilder('u'), $filter);
+        $queryBuilder = $this->createQueryBuilder('u')
+            ->select('u.id, u.email, u.firstName, u.lastName, u.active, u.createdAt, u.updatedAt')
+            ->where('u.roles like :role')
+            ->setParameter('role', '%ROLE_USER%')
+        ;
+
+        return $this->addFilters($queryBuilder, $filter);
     }
 
     private function addFilters(QueryBuilder $queryBuilder, Filter $filter): QueryBuilder
@@ -80,24 +105,5 @@ class UserRepository extends ServiceEntityRepository
 
         $queryBuilder->andWhere("u.{$columnName} = :{$columnName}")
             ->setParameter($columnName, $value);
-    }
-
-    public function update(): void
-    {
-        $this->getEntityManager()->flush();
-    }
-
-    /**
-     * @throws NotFoundHttpException
-     */
-    public function findOrFail(int $id): User
-    {
-        $user = $this->find($id);
-
-        if ($user === null) {
-            throw new NotFoundHttpException("User with id {$id} was not found");
-        }
-
-        return $user;
     }
 }

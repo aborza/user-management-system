@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use App\ExternalApi\Model\User\User as UserModel;
 
 class UserService
 {
@@ -60,9 +61,9 @@ class UserService
     /**
      * @throws NotFoundHttpException
      */
-    public function getUser(int $id): User
+    public function getUser(int $id): UserModel
     {
-        return $this->userRepository->findOrFail($id);
+        return $this->userFactory->createModelFromEntity($this->userRepository->findOrFail($id));
     }
 
     public function createUser(UserCreateRequest $userCreateRequest): void

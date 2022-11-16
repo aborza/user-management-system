@@ -4,6 +4,7 @@ namespace App\ExternalApi\Factory;
 
 use App\Entity\User;
 use App\ExternalApi\Model\User\Create\Request as UserCreateRequest;
+use App\ExternalApi\Model\User\User as UserModel;
 use Carbon\CarbonImmutable;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -29,5 +30,17 @@ class UserFactory
         ;
 
         return $user->setPassword($this->passwordHasher->hashPassword($user, $userCreateRequest->getPassword()));
+    }
+
+    public function createModelFromEntity(User $user):UserModel
+    {
+        return new UserModel(
+            $user->getId(),
+            $user->getEmail(),
+            $user->getFirstName(),
+            $user->getLastName(),
+            $user->getActive(),
+            $user->getCreatedAt()
+        );
     }
 }
